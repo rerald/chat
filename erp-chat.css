@@ -648,6 +648,12 @@ body {
     z-index: 10;
 }
 
+/* 본인 메시지에 추가 액션 버튼 표시 */
+.message.own .message-actions {
+    left: 16px;
+    right: auto;
+}
+
 .message:hover .message-actions {
     opacity: 1;
     transform: translateY(0);
@@ -682,6 +688,101 @@ body {
 .action-btn.active {
     background: #3b82f6;
     color: #ffffff;
+}
+
+.action-btn.edit {
+    color: #8b5cf6;
+}
+
+.action-btn.edit:hover {
+    background: #8b5cf6;
+    color: #ffffff;
+}
+
+.action-btn.delete {
+    color: #ef4444;
+}
+
+.action-btn.delete:hover {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+/* 수정된 메시지 표시 */
+.message-edited {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 4px;
+    font-style: italic;
+}
+
+/* 삭제된 메시지 표시 */
+.message.deleted .message-bubble {
+    background: #f1f5f9;
+    color: #94a3b8;
+    font-style: italic;
+    border: 1px dashed #cbd5e1;
+}
+
+.message.deleted.own .message-bubble {
+    background: #f1f5f9;
+    color: #94a3b8;
+}
+
+/* 메시지 수정 중 입력창 */
+.message-edit-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 2px solid #3b82f6;
+    border-radius: 12px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    background: #ffffff;
+    resize: none;
+    min-height: 40px;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    justify-content: flex-end;
+}
+
+.edit-btn {
+    padding: 4px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.edit-btn.save {
+    background: #10b981;
+    color: #ffffff;
+}
+
+.edit-btn.save:hover {
+    background: #059669;
+}
+
+.edit-btn.cancel {
+    background: #6b7280;
+    color: #ffffff;
+}
+
+.edit-btn.cancel:hover {
+    background: #4b5563;
+}
+
+/* 시간 제한 표시 */
+.time-limit-indicator {
+    font-size: 10px;
+    color: #f59e0b;
+    margin-left: 8px;
+    font-weight: 500;
 }
 
 /* 이모지 반응 */

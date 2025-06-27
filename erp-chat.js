@@ -216,21 +216,31 @@ class ERPChatApp {
     createMessageElement(message) {
         const isOwn = message.sender === '김민준';
         const user = this.users[message.sender];
+        const now = new Date();
+        const timeDiff = (now - message.time) / 1000 / 60; // 분 단위
+        const canEdit = isOwn && timeDiff <= 5 && !message.deleted; // 5분 이내, 본인 메시지, 삭제되지 않음
         
         const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${isOwn ? 'own' : ''}`;
+        messageDiv.className = `message ${isOwn ? 'own' : ''} ${message.deleted ? 'deleted' : ''}`;
         messageDiv.dataset.messageId = message.id;
+
+        const timeText = this.formatTime(message.time);
+        const timeLimit = canEdit ? `<span class="time-limit-indicator">${Math.ceil(5 - timeDiff)}분 남음</span>` : '';
 
         messageDiv.innerHTML = `
             <img src="${user.avatar}" alt="${message.sender}" class="message-avatar">
             <div class="message-content">
                 <div class="message-header">
                     <span class="sender-name">${message.sender}</span>
-                    <span class="message-time">${this.formatTime(message.time)}</span>
+                    <span class="message-time">${timeText}${timeLimit}</span>
                 </div>
-                <div class="message-bubble">
-                    ${this.formatMessageContent(message.content)}
+                <div class="message-bubble" id="bubble-${message.id}">
+                    ${message.deleted ? 
+                        '<i class="fas fa-ban"></i> 삭제된 메시지입니다' : 
+                        this.formatMessageContent(message.content)
+                    }
                 </div>
+                ${message.edited && !message.deleted ? '<div class="message-edited">수정됨</div>' : ''}
                 ${message.reactions && message.reactions.length > 0 ? this.renderReactions(message.reactions) : ''}
             </div>
             <div class="message-actions">
@@ -243,6 +253,14 @@ class ERPChatApp {
                 <button class="action-btn" onclick="chatApp.replyToMessage(${message.id})" title="답장">
                     <i class="fas fa-reply"></i>
                 </button>
+                ${canEdit ? `
+                    <button class="action-btn edit" onclick="chatApp.editMessage(${message.id})" title="수정">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="action-btn delete" onclick="chatApp.deleteMessage(${message.id})" title="삭제">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                ` : ''}
                 <button class="action-btn" onclick="chatApp.shareMessage(${message.id})" title="공유">
                     <i class="fas fa-share"></i>
                 </button>
@@ -318,6 +336,133 @@ class ERPChatApp {
         
         // 커서를 끝으로 이동
         messageInput.setSelectionRange(replyText.length, replyText.length);
+    }
+
+    // 메시지 수정
+    editMessage(messageId) {
+        if (!this.currentRoom) return;
+        
+        const room = this.chatRooms[this.currentRoom];
+        const message = room.messages.find(m => m.id === messageId);
+        
+        if (!message || message.sender !== '김민준' || message.deleted) return;
+
+        // 시간 제한 확인 (5분)
+        const timeDiff = (new Date() - message.time) / 1000 / 60;
+        if (timeDiff > 5) {
+            alert('메시지 수정은 5분 이내에만 가능합니다.');
+            return;
+        }
+
+        const bubbleElement = document.getElementById(`bubble-${messageId}`);
+        const originalContent = message.content;
+
+        // 수정 UI 생성
+        bubbleElement.innerHTML = `
+            <textarea class="message-edit-input" id="edit-input-${messageId}">${originalContent}</textarea>
+            <div class="edit-actions">
+                <button class="edit-btn cancel" onclick="chatApp.cancelEdit(${messageId}, '${originalContent.replace(/'/g, "\\'")}')">취소</button>
+                <button class="edit-btn save" onclick="chatApp.saveEdit(${messageId})">저장</button>
+            </div>
+        `;
+
+        // 입력창에 포커스
+        const editInput = document.getElementById(`edit-input-${messageId}`);
+        editInput.focus();
+        editInput.setSelectionRange(originalContent.length, originalContent.length);
+
+        // 엔터키로 저장, ESC로 취소
+        editInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                this.saveEdit(messageId);
+            } else if (e.key === 'Escape') {
+                this.cancelEdit(messageId, originalContent);
+            }
+        });
+    }
+
+    // 메시지 수정 저장
+    saveEdit(messageId) {
+        const editInput = document.getElementById(`edit-input-${messageId}`);
+        const newContent = editInput.value.trim();
+        
+        if (!newContent) {
+            alert('메시지 내용을 입력해주세요.');
+            return;
+        }
+
+        if (!this.currentRoom) return;
+        
+        const room = this.chatRooms[this.currentRoom];
+        const message = room.messages.find(m => m.id === messageId);
+        
+        if (!message) return;
+
+        // 메시지 수정
+        message.content = newContent;
+        message.edited = true;
+        message.editedTime = new Date();
+
+        // 채팅방 목록의 마지막 메시지 업데이트
+        if (room.messages[room.messages.length - 1].id === messageId) {
+            room.lastMessage = newContent;
+        }
+
+        // UI 업데이트
+        this.renderMessages(room.messages);
+        this.updateChatList();
+
+        // 스크롤 유지
+        setTimeout(() => {
+            const messagesArea = document.getElementById('messagesArea');
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }, 100);
+    }
+
+    // 메시지 수정 취소
+    cancelEdit(messageId, originalContent) {
+        const bubbleElement = document.getElementById(`bubble-${messageId}`);
+        bubbleElement.innerHTML = this.formatMessageContent(originalContent);
+    }
+
+    // 메시지 삭제
+    deleteMessage(messageId) {
+        if (!this.currentRoom) return;
+        
+        const room = this.chatRooms[this.currentRoom];
+        const message = room.messages.find(m => m.id === messageId);
+        
+        if (!message || message.sender !== '김민준') return;
+
+        // 시간 제한 확인 (5분)
+        const timeDiff = (new Date() - message.time) / 1000 / 60;
+        if (timeDiff > 5) {
+            alert('메시지 삭제는 5분 이내에만 가능합니다.');
+            return;
+        }
+
+        if (confirm('이 메시지를 삭제하시겠습니까?')) {
+            // 메시지 삭제 표시
+            message.deleted = true;
+            message.deletedTime = new Date();
+            message.content = '삭제된 메시지입니다';
+
+            // 채팅방 목록의 마지막 메시지 업데이트
+            if (room.messages[room.messages.length - 1].id === messageId) {
+                // 삭제된 메시지가 마지막 메시지인 경우, 이전 메시지를 찾아서 업데이트
+                const nonDeletedMessages = room.messages.filter(m => !m.deleted);
+                if (nonDeletedMessages.length > 0) {
+                    room.lastMessage = nonDeletedMessages[nonDeletedMessages.length - 1].content;
+                } else {
+                    room.lastMessage = '삭제된 메시지입니다';
+                }
+            }
+
+            // UI 업데이트
+            this.renderMessages(room.messages);
+            this.updateChatList();
+        }
     }
 
     // 메시지 전송
