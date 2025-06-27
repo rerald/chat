@@ -14,6 +14,10 @@ class ERPChatApp {
             "김민준": { avatar: "face2.png", status: "온라인" } // 본인
         };
 
+        // 즐겨찾기 및 나간 채팅방 관리
+        this.favoriteRooms = new Set();
+        this.leftRooms = new Set();
+
         // 채팅방 데이터
         this.chatRooms = {
             "general": {
@@ -97,6 +101,7 @@ class ERPChatApp {
     }
 
     initializeApp() {
+        this.loadSettings();
         this.setupEventListeners();
         this.updateChatList();
         this.autoRespond();
@@ -431,28 +436,118 @@ class ERPChatApp {
 
     // 채팅 목록 업데이트
     updateChatList() {
-        const chatRoomsContainer = document.querySelector('.chat-rooms');
-        chatRoomsContainer.innerHTML = '';
+        const favoriteContainer = document.getElementById('favoriteRooms');
+        const allRoomsContainer = document.getElementById('allRooms');
+        
+        // 컨테이너 초기화
+        favoriteContainer.innerHTML = '';
+        allRoomsContainer.innerHTML = '';
+
+        // 즐겨찾기와 일반 채팅방 분리
+        const favoriteRoomsList = [];
+        const regularRoomsList = [];
 
         Object.keys(this.chatRooms).forEach(roomId => {
+            // 나간 채팅방은 제외
+            if (this.leftRooms.has(roomId)) return;
+            
             const room = this.chatRooms[roomId];
-            const roomElement = this.createChatRoomElement(roomId, room);
-            chatRoomsContainer.appendChild(roomElement);
+            if (this.favoriteRooms.has(roomId)) {
+                favoriteRoomsList.push({roomId, room});
+            } else {
+                regularRoomsList.push({roomId, room});
+            }
         });
+
+        // 즐겨찾기 채팅방 렌더링
+        favoriteRoomsList.forEach(({roomId, room}) => {
+            const roomElement = this.createChatRoomElement(roomId, room);
+            favoriteContainer.appendChild(roomElement);
+        });
+
+        // 일반 채팅방 렌더링
+        regularRoomsList.forEach(({roomId, room}) => {
+            const roomElement = this.createChatRoomElement(roomId, room);
+            allRoomsContainer.appendChild(roomElement);
+        });
+
+        // 즐겨찾기 섹션 표시/숨김
+        const favoriteSection = favoriteContainer.closest('.chat-section');
+        if (favoriteRoomsList.length === 0) {
+            favoriteSection.style.display = 'none';
+        } else {
+            favoriteSection.style.display = 'block';
+        }
 
         // 전체 읽지 않은 메시지 수 업데이트
         this.updateNotificationBadge();
+    }
+
+    // 즐겨찾기 토글
+    toggleFavorite(roomId) {
+        if (this.favoriteRooms.has(roomId)) {
+            this.favoriteRooms.delete(roomId);
+        } else {
+            this.favoriteRooms.add(roomId);
+        }
+        this.updateChatList();
+        
+        // 로컬 스토리지에 저장
+        localStorage.setItem('favoriteRooms', JSON.stringify([...this.favoriteRooms]));
+    }
+
+    // 채팅방 나가기
+    leaveRoom(roomId) {
+        const room = this.chatRooms[roomId];
+        if (!room) return;
+
+        // 확인 대화상자
+        if (confirm(`"${room.name}" 채팅방에서 나가시겠습니까?`)) {
+            this.leftRooms.add(roomId);
+            
+            // 현재 열린 채팅방이면 목록으로 돌아가기
+            if (this.currentRoom === roomId) {
+                this.backToChatList();
+            }
+            
+            // 즐겨찾기에서도 제거
+            this.favoriteRooms.delete(roomId);
+            
+            this.updateChatList();
+            
+            // 로컬 스토리지에 저장
+            localStorage.setItem('leftRooms', JSON.stringify([...this.leftRooms]));
+            localStorage.setItem('favoriteRooms', JSON.stringify([...this.favoriteRooms]));
+        }
+    }
+
+    // 로컬 스토리지에서 설정 불러오기
+    loadSettings() {
+        try {
+            const savedFavorites = localStorage.getItem('favoriteRooms');
+            if (savedFavorites) {
+                this.favoriteRooms = new Set(JSON.parse(savedFavorites));
+            }
+
+            const savedLeftRooms = localStorage.getItem('leftRooms');
+            if (savedLeftRooms) {
+                this.leftRooms = new Set(JSON.parse(savedLeftRooms));
+            }
+        } catch (error) {
+            console.warn('설정을 불러오는 중 오류가 발생했습니다:', error);
+        }
     }
 
     // 채팅방 목록 요소 생성
     createChatRoomElement(roomId, room) {
         const roomDiv = document.createElement('div');
         roomDiv.className = `chat-room-item ${this.currentRoom === roomId ? 'active' : ''}`;
-        roomDiv.onclick = () => this.openChatRoom(roomId);
-
+        
         const timeText = room.messages.length > 0 
             ? this.formatTime(room.messages[room.messages.length - 1].time)
             : '';
+
+        const isFavorite = this.favoriteRooms.has(roomId);
 
         roomDiv.innerHTML = `
             <div class="room-avatar">
@@ -461,13 +556,27 @@ class ERPChatApp {
                     : `<img src="${this.users[roomId]?.avatar}" alt="${room.name}">`
                 }
             </div>
-            <div class="room-info">
+            <div class="room-info" onclick="chatApp.openChatRoom('${roomId}')">
                 <div class="room-name">${room.name}</div>
                 <div class="room-preview">${this.truncateText(room.lastMessage || '', 25)}</div>
             </div>
             <div class="room-meta">
                 <span class="room-time">${timeText}</span>
                 ${room.unreadCount > 0 ? `<span class="unread-count">${room.unreadCount}</span>` : ''}
+            </div>
+            <div class="room-actions">
+                <button class="room-action-btn favorite ${isFavorite ? 'active' : ''}" 
+                        onclick="event.stopPropagation(); chatApp.toggleFavorite('${roomId}')" 
+                        title="${isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}">
+                    <i class="fas fa-star"></i>
+                </button>
+                ${room.type !== 'channel' ? `
+                    <button class="room-action-btn leave" 
+                            onclick="event.stopPropagation(); chatApp.leaveRoom('${roomId}')" 
+                            title="채팅방 나가기">
+                        <i class="fas fa-times"></i>
+                    </button>
+                ` : ''}
             </div>
         `;
 

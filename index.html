@@ -127,59 +127,25 @@
                     <input type="text" placeholder="대화 검색...">
                 </div>
 
-                <div class="chat-rooms">
-                    <div class="chat-room-item active" onclick="openChatRoom('general')">
-                        <div class="room-avatar">
-                            <i class="fas fa-hashtag"></i>
-                        </div>
-                        <div class="room-info">
-                            <div class="room-name"># 전체 채팅</div>
-                            <div class="room-preview">김철수: 회의 일정이 어떻게 되나요?</div>
-                        </div>
-                        <div class="room-meta">
-                            <span class="room-time">1분 전</span>
-                            <span class="unread-count">3</span>
-                        </div>
+                <!-- 즐겨찾기 섹션 -->
+                <div class="chat-section">
+                    <div class="section-header">
+                        <i class="fas fa-star" style="color: #f59e0b;"></i>
+                        <span>즐겨찾기</span>
                     </div>
-
-                    <div class="chat-room-item" onclick="openChatRoom('김철수')">
-                        <div class="room-avatar">
-                            <img src="face1.png" alt="김철수">
-                        </div>
-                        <div class="room-info">
-                            <div class="room-name">김철수</div>
-                            <div class="room-preview">안녕하세요! 프로젝트 관련해서...</div>
-                        </div>
-                        <div class="room-meta">
-                            <span class="room-time">5분 전</span>
-                            <span class="unread-count">1</span>
-                        </div>
+                    <div class="favorite-rooms" id="favoriteRooms">
+                        <!-- 즐겨찾기된 채팅방들이 여기에 표시됩니다 -->
                     </div>
+                </div>
 
-                    <div class="chat-room-item" onclick="openChatRoom('이영희')">
-                        <div class="room-avatar">
-                            <img src="face2.png" alt="이영희">
-                        </div>
-                        <div class="room-info">
-                            <div class="room-name">이영희</div>
-                            <div class="room-preview">파일 공유 감사합니다</div>
-                        </div>
-                        <div class="room-meta">
-                            <span class="room-time">30분 전</span>
-                        </div>
+                <!-- 전체 채팅방 섹션 -->
+                <div class="chat-section">
+                    <div class="section-header">
+                        <i class="fas fa-comments"></i>
+                        <span>모든 대화</span>
                     </div>
-
-                    <div class="chat-room-item" onclick="openChatRoom('최수진')">
-                        <div class="room-avatar">
-                            <img src="face3.png" alt="최수진">
-                        </div>
-                        <div class="room-info">
-                            <div class="room-name">최수진</div>
-                            <div class="room-preview">내일 회의 준비 완료했습니다</div>
-                        </div>
-                        <div class="room-meta">
-                            <span class="room-time">1시간 전</span>
-                        </div>
+                    <div class="chat-rooms" id="allRooms">
+                        <!-- 채팅방들이 여기에 동적으로 추가됩니다 -->
                     </div>
                 </div>
             </div>

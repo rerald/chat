@@ -291,6 +291,36 @@ body {
     overflow-y: auto;
 }
 
+/* 채팅 섹션 */
+.chat-section {
+    margin-bottom: 20px;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+}
+
+.section-header i {
+    font-size: 14px;
+}
+
+.favorite-rooms:empty {
+    display: none;
+}
+
+.favorite-rooms:empty + .chat-section .section-header {
+    display: none;
+}
+
 .chat-search {
     padding: 16px;
     border-bottom: 1px solid #e2e8f0;
@@ -332,6 +362,7 @@ body {
     cursor: pointer;
     transition: background-color 0.2s ease;
     border-left: 3px solid transparent;
+    position: relative;
 }
 
 .chat-room-item:hover {
@@ -406,6 +437,73 @@ body {
     border-radius: 10px;
     min-width: 18px;
     text-align: center;
+}
+
+/* 채팅방 액션 버튼들 */
+.room-actions {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.chat-room-item:hover .room-actions {
+    opacity: 1;
+}
+
+.room-action-btn {
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 12px;
+    color: #64748b;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.room-action-btn:hover {
+    background: #ffffff;
+    transform: scale(1.1);
+}
+
+.room-action-btn.favorite {
+    color: #f59e0b;
+}
+
+.room-action-btn.favorite.active {
+    background: #f59e0b;
+    color: #ffffff;
+}
+
+.room-action-btn.leave {
+    color: #ef4444;
+}
+
+.room-action-btn.leave:hover {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+/* 읽지 않은 메시지 카운트 위치 조정 */
+.chat-room-item:hover .unread-count {
+    margin-right: 60px;
+}
+
+.room-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    transition: margin-right 0.2s ease;
 }
 
 /* 채팅 메시지 컨테이너 */
