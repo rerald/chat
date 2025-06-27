@@ -3,218 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ERP 채팅 시스템</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Blue Hole ERP - 채팅 시스템</title>
+    <link rel="stylesheet" href="erp-chat.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="chat-container">
-        <!-- 사이드바 -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <h2><i class="fas fa-comments"></i> ERP Chat</h2>
-                <div class="user-status">
-                    <div class="user-avatar">
-                        <img src="face2.png" alt="User Avatar">
-                    </div>
-                    <span class="username">내 이름</span>
-                    <div class="status-indicator online"></div>
-                </div>
+    <!-- ERP 메인 레이아웃 -->
+    <div class="erp-container">
+        <!-- 사이드바 메뉴 -->
+        <div class="erp-sidebar">
+            <div class="erp-header">
+                <h2><i class="fas fa-circle" style="color: #6366f1;"></i> Blue Hole</h2>
             </div>
             
-            <div class="channel-section">
-                <div class="section-header">
-                    <h3><i class="fas fa-hashtag"></i> 채널</h3>
-                </div>
-                <div class="channel-list">
-                    <div class="channel-item active" data-channel="general">
-                        <i class="fas fa-hashtag"></i>
-                        <span>전체 채팅</span>
-                        <span class="unread-count">3</span>
-                    </div>
+            <nav class="erp-nav">
+                <a href="#" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>홈</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-calendar"></i>
+                    <span>캘린더</span>
+                </a>
+                <a href="#" class="nav-item active" onclick="toggleChat()">
+                    <i class="fas fa-comments"></i>
+                    <span>채팅</span>
+                    <span class="notification-badge">12</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-briefcase"></i>
+                    <span>공지사항</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-link"></i>
+                    <span>B-링크</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-folder"></i>
+                    <span>B-파일</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>캘린더</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-users"></i>
+                    <span>커뮤니티</span>
+                </a>
+            </nav>
+
+            <div class="erp-user-section">
+                <div class="user-profile">
+                    <img src="face2.png" alt="내 프로필" class="user-avatar">
+                    <span>김민준</span>
                 </div>
             </div>
+        </div>
 
-            <div class="dm-section">
-                <div class="section-header">
-                    <h3><i class="fas fa-user"></i> 다이렉트 메시지</h3>
+        <!-- 메인 콘텐츠 영역 -->
+        <div class="erp-main">
+            <div class="erp-content">
+                <div class="welcome-section">
+                    <h1>안녕하세요, 김민준님</h1>
+                    <p>오늘도 좋은 하루 되세요!</p>
                 </div>
-                <div class="dm-list">
-                    <div class="dm-item" data-user="김철수">
-                        <div class="user-avatar">
-                            <img src="face1.png" alt="김철수">
-                        </div>
-                        <span class="username">김철수</span>
-                        <div class="status-indicator online"></div>
-                        <span class="unread-count">2</span>
-                    </div>
-                    <div class="dm-item" data-user="이영희">
-                        <div class="user-avatar">
-                            <img src="face2.png" alt="이영희">
-                        </div>
-                        <span class="username">이영희</span>
-                        <div class="status-indicator offline"></div>
-                    </div>
-                    <div class="dm-item" data-user="박민수">
-                        <div class="user-avatar">
-                            <img src="face1.png" alt="박민수">
-                        </div>
-                        <span class="username">박민수</span>
-                        <div class="status-indicator online"></div>
-                    </div>
-                </div>
-            </div>
 
-            <div class="online-users">
-                <div class="section-header">
-                    <h3><i class="fas fa-circle"></i> 온라인 (4)</h3>
-                </div>
-                <div class="user-list">
-                    <div class="user-item">
-                        <div class="user-avatar">
-                            <img src="face2.png" alt="나">
-                        </div>
-                        <span>내 이름</span>
-                        <div class="status-indicator online"></div>
+                <!-- 빠른 실행 메뉴 -->
+                <div class="quick-actions">
+                    <div class="action-card">
+                        <i class="fas fa-video" style="color: #10b981;"></i>
+                        <span>화상회의</span>
                     </div>
-                    <div class="user-item">
-                        <div class="user-avatar">
-                            <img src="face1.png" alt="김철수">
-                        </div>
-                        <span>김철수</span>
-                        <div class="status-indicator online"></div>
-                        <span class="leave-status">반차</span>
+                    <div class="action-card">
+                        <i class="fas fa-envelope" style="color: #f59e0b;"></i>
+                        <span>메일</span>
                     </div>
-                    <div class="user-item">
-                        <div class="user-avatar">
-                            <img src="face1.png" alt="박민수">
-                        </div>
-                        <span>박민수</span>
-                        <div class="status-indicator online"></div>
+                    <div class="action-card" onclick="toggleChat()">
+                        <i class="fas fa-comments" style="color: #3b82f6;"></i>
+                        <span>채팅</span>
                     </div>
-                    <div class="user-item">
-                        <div class="user-avatar">
-                            <img src="face3.png" alt="최수진">
-                        </div>
-                        <span>최수진</span>
-                        <div class="status-indicator online"></div>
-                        <span class="leave-status">연차</span>
+                    <div class="action-card">
+                        <i class="fas fa-file-alt" style="color: #8b5cf6;"></i>
+                        <span>문서</span>
                     </div>
                 </div>
-            </div>
 
-            <div class="file-storage">
-                <div class="section-header">
-                    <h3><i class="fas fa-folder"></i> 파일 보관함</h3>
-                </div>
-                <div class="file-list">
-                    <div class="file-item">
-                        <i class="fas fa-file-excel"></i>
-                        <span>회의자료.xlsx</span>
-                        <button class="download-btn" title="다운로드">
-                            <i class="fas fa-download"></i>
-                        </button>
-                    </div>
-                    <div class="file-item">
-                        <i class="fas fa-file-pdf"></i>
-                        <span>프로젝트_계획서.pdf</span>
-                        <button class="download-btn" title="다운로드">
-                            <i class="fas fa-download"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="schedule-alerts">
-                <div class="section-header">
-                    <h3><i class="fas fa-bell"></i> 일정 알림</h3>
-                </div>
-                <div class="alert-list">
-                    <div class="alert-item">
-                        <i class="fas fa-calendar"></i>
-                        <div class="alert-content">
-                            <span class="alert-title">팀 회의</span>
-                            <span class="alert-time">오후 2:00</span>
+                <!-- 알림 섹션 -->
+                <div class="notifications-section">
+                    <h3>최근 알림</h3>
+                    <div class="notification-item">
+                        <i class="fas fa-bell" style="color: #f59e0b;"></i>
+                        <div class="notification-content">
+                            <span class="notification-title">새로운 메시지</span>
+                            <span class="notification-desc">김철수님이 메시지를 보냈습니다</span>
                         </div>
+                        <span class="notification-time">2분 전</span>
                     </div>
-                    <div class="alert-item">
-                        <i class="fas fa-tasks"></i>
-                        <div class="alert-content">
-                            <span class="alert-title">프로젝트 마감</span>
-                            <span class="alert-time">내일</span>
+                    <div class="notification-item">
+                        <i class="fas fa-calendar" style="color: #10b981;"></i>
+                        <div class="notification-content">
+                            <span class="notification-title">회의 알림</span>
+                            <span class="notification-desc">오후 2시 팀 회의가 예정되어 있습니다</span>
                         </div>
+                        <span class="notification-time">1시간 후</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 메인 채팅 영역 -->
-        <div class="main-content">
-            <div class="chat-header">
-                <div class="channel-info">
-                    <h2 id="current-channel-name"># 전체 채팅</h2>
-                    <span id="channel-description">모든 팀원들과 소통하는 공간입니다</span>
-                </div>
-                <div class="header-actions">
-                    <button class="action-btn" title="검색">
-                        <i class="fas fa-search"></i>
-                    </button>
-                    <button class="action-btn" title="설정">
-                        <i class="fas fa-cog"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="chat-messages" id="chat-messages">
-                <!-- 메시지들이 여기에 동적으로 추가됩니다 -->
-                <div class="drag-drop-overlay" id="drag-drop-overlay" style="display: none;">
-                    <div class="drag-drop-content">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <h3>파일을 여기에 드롭하세요</h3>
-                        <p>이미지, 문서, 엑셀 파일 등을 지원합니다</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="message-input-container">
-                <div class="message-input-wrapper">
-                    <button class="attach-btn" title="파일 첨부">
-                        <i class="fas fa-paperclip"></i>
-                    </button>
-                    <textarea id="message-input" placeholder="메시지를 입력하세요... (Alt+Enter로 줄바꿈)" maxlength="1000" rows="1"></textarea>
-                    <button class="emoji-btn" title="이모지">
-                        <i class="fas fa-smile"></i>
-                    </button>
-                    <button class="send-btn" id="send-btn" title="전송">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-                <div class="input-info">
-                    <span class="typing-indicator" id="typing-indicator"></span>
-                    <span class="char-count" id="char-count">0/1000</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 모달 오버레이 -->
-    <div class="modal-overlay" id="modal-overlay" style="display: none;">
-        <div class="modal">
-            <div class="modal-header">
-                <h3>새 다이렉트 메시지</h3>
-                <button class="close-btn" onclick="closeModal()">
+        <!-- 채팅 사이드 패널 -->
+        <div class="chat-panel" id="chatPanel">
+            <div class="chat-panel-header">
+                <h3><i class="fas fa-comments"></i> 채팅</h3>
+                <button class="close-chat" onclick="toggleChat()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="modal-body">
-                <input type="text" placeholder="사용자 이름 검색..." class="search-input">
-                <div class="user-search-results">
-                    <!-- 검색 결과가 여기에 표시됩니다 -->
+
+            <!-- 채팅 목록 -->
+            <div class="chat-list">
+                <div class="chat-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="대화 검색...">
+                </div>
+
+                <div class="chat-rooms">
+                    <div class="chat-room-item active" onclick="openChatRoom('general')">
+                        <div class="room-avatar">
+                            <i class="fas fa-hashtag"></i>
+                        </div>
+                        <div class="room-info">
+                            <div class="room-name"># 전체 채팅</div>
+                            <div class="room-preview">김철수: 회의 일정이 어떻게 되나요?</div>
+                        </div>
+                        <div class="room-meta">
+                            <span class="room-time">1분 전</span>
+                            <span class="unread-count">3</span>
+                        </div>
+                    </div>
+
+                    <div class="chat-room-item" onclick="openChatRoom('김철수')">
+                        <div class="room-avatar">
+                            <img src="face1.png" alt="김철수">
+                        </div>
+                        <div class="room-info">
+                            <div class="room-name">김철수</div>
+                            <div class="room-preview">안녕하세요! 프로젝트 관련해서...</div>
+                        </div>
+                        <div class="room-meta">
+                            <span class="room-time">5분 전</span>
+                            <span class="unread-count">1</span>
+                        </div>
+                    </div>
+
+                    <div class="chat-room-item" onclick="openChatRoom('이영희')">
+                        <div class="room-avatar">
+                            <img src="face2.png" alt="이영희">
+                        </div>
+                        <div class="room-info">
+                            <div class="room-name">이영희</div>
+                            <div class="room-preview">파일 공유 감사합니다</div>
+                        </div>
+                        <div class="room-meta">
+                            <span class="room-time">30분 전</span>
+                        </div>
+                    </div>
+
+                    <div class="chat-room-item" onclick="openChatRoom('최수진')">
+                        <div class="room-avatar">
+                            <img src="face3.png" alt="최수진">
+                        </div>
+                        <div class="room-info">
+                            <div class="room-name">최수진</div>
+                            <div class="room-preview">내일 회의 준비 완료했습니다</div>
+                        </div>
+                        <div class="room-meta">
+                            <span class="room-time">1시간 전</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 채팅 메시지 영역 -->
+            <div class="chat-messages-container" id="chatMessages" style="display: none;">
+                <div class="chat-header">
+                    <button class="back-btn" onclick="backToChatList()">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <div class="chat-title">
+                        <span id="currentChatName"># 전체 채팅</span>
+                        <span class="chat-status">3명 온라인</span>
+                    </div>
+                </div>
+
+                <div class="messages-area" id="messagesArea">
+                    <!-- 메시지들이 여기에 동적으로 추가됩니다 -->
+                </div>
+
+                <div class="message-input-area">
+                    <div class="input-wrapper">
+                        <button class="attach-btn" onclick="attachFile()">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                        <textarea id="messageInput" placeholder="메시지를 입력하세요... (Alt+Enter로 줄바꿈)" rows="1"></textarea>
+                        <button class="emoji-btn" onclick="showEmojiPicker()">
+                            <i class="fas fa-smile"></i>
+                        </button>
+                        <button class="send-btn" onclick="sendMessage()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="input-info">
+                        <span class="typing-indicator" id="typingIndicator"></span>
+                        <span class="char-count" id="charCount">0/1000</span>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- 채팅 오버레이 (모바일용) -->
+        <div class="chat-overlay" id="chatOverlay" onclick="toggleChat()"></div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="erp-chat.js"></script>
 </body>
 </html> 
