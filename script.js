@@ -4,10 +4,10 @@ class ChatApp {
         this.currentChannel = 'general';
         this.currentUser = '내 이름';
         this.users = [
-            { name: '김철수', status: 'online', avatar: 'https://via.placeholder.com/36/FF6B6B/FFFFFF?text=김' },
-            { name: '이영희', status: 'offline', avatar: 'https://via.placeholder.com/36/4ECDC4/FFFFFF?text=이' },
-            { name: '박민수', status: 'online', avatar: 'https://via.placeholder.com/36/FFE66D/000000?text=박' },
-            { name: '최수진', status: 'online', avatar: 'https://via.placeholder.com/36/A8E6CF/000000?text=최' }
+            { name: '김철수', status: 'online', avatar: 'face1.png' },
+            { name: '이영희', status: 'offline', avatar: 'face2.png' },
+            { name: '박민수', status: 'online', avatar: 'face1.png' },
+            { name: '최수진', status: 'online', avatar: 'face3.png' }
         ];
         
         this.messages = {
@@ -17,21 +17,21 @@ class ChatApp {
                     sender: '김철수',
                     text: '안녕하세요! 새로운 프로젝트 관련해서 회의 일정이 어떻게 되나요?',
                     time: new Date(Date.now() - 3600000).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
-                    avatar: 'https://via.placeholder.com/36/FF6B6B/FFFFFF?text=김'
+                    avatar: 'face1.png'
                 },
                 {
                     id: 2,
                     sender: '박민수',
                     text: '이번 주 금요일 오후 2시에 회의실 A에서 진행 예정입니다.',
                     time: new Date(Date.now() - 3000000).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
-                    avatar: 'https://via.placeholder.com/36/FFE66D/000000?text=박'
+                    avatar: 'face1.png'
                 },
                 {
                     id: 3,
                     sender: '최수진',
                     text: '네, 확인했습니다! 준비할 자료가 있다면 미리 알려주세요.',
                     time: new Date(Date.now() - 1800000).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
-                    avatar: 'https://via.placeholder.com/36/A8E6CF/000000?text=최'
+                    avatar: 'face3.png'
                 }
             ]
         };
@@ -60,19 +60,33 @@ class ChatApp {
         const messageInput = document.getElementById('message-input');
         const sendBtn = document.getElementById('send-btn');
 
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                this.sendMessage();
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                if (e.altKey) {
+                    // Alt + Enter로 줄바꿈 허용
+                    return;
+                } else {
+                    e.preventDefault();
+                    this.sendMessage();
+                }
             }
         });
 
         messageInput.addEventListener('input', (e) => {
             this.updateCharCount(e.target.value.length);
+            this.autoResizeTextarea(e.target);
             this.simulateTyping();
         });
 
         sendBtn.addEventListener('click', () => this.sendMessage());
+
+        // 드래그 앤 드롭 이벤트
+        this.setupDragAndDrop();
+
+        // 복사-붙여넣기 이벤트
+        messageInput.addEventListener('paste', (e) => {
+            this.handlePaste(e);
+        });
 
         // 채널 및 DM 클릭 이벤트
         document.addEventListener('click', (e) => {
@@ -113,7 +127,7 @@ class ChatApp {
             sender: this.currentUser,
             text: text,
             time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
-            avatar: 'https://via.placeholder.com/36/4A90E2/FFFFFF?text=ME',
+            avatar: 'face2.png',
             isOwn: true
         };
 
@@ -253,6 +267,7 @@ class ChatApp {
     createMessageElement(message) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${message.isOwn ? 'own' : ''} ${this.currentChannel !== 'general' ? 'private' : ''}`;
+        messageDiv.style.position = 'relative';
 
         const avatar = document.createElement('img');
         avatar.className = 'avatar';
@@ -278,13 +293,64 @@ class ChatApp {
 
         const textDiv = document.createElement('div');
         textDiv.className = 'message-text';
-        textDiv.textContent = message.text;
+        
+        // 파일 메시지 처리
+        if (message.isFile) {
+            textDiv.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-paperclip"></i>
+                    <span>${message.text}</span>
+                    <button onclick="downloadFile('${message.fileName}')" style="background: none; border: none; color: inherit; cursor: pointer;">
+                        <i class="fas fa-download"></i>
+                    </button>
+                </div>
+            `;
+        }
+        // 이미지 메시지 처리
+        else if (message.isImage) {
+            textDiv.innerHTML = `
+                <div>
+                    <div>${message.text}</div>
+                    <img src="${message.imageUrl}" style="max-width: 300px; max-height: 200px; border-radius: 8px; margin-top: 8px; cursor: pointer;" onclick="openImageModal('${message.imageUrl}')">
+                </div>
+            `;
+        }
+        // 일반 텍스트 메시지
+        else {
+            textDiv.textContent = message.text;
+        }
 
         contentDiv.appendChild(headerDiv);
         contentDiv.appendChild(textDiv);
 
+        // 메시지 액션 버튼들 (호버 시 표시)
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'message-actions';
+        actionsDiv.innerHTML = `
+            <button class="action-icon" onclick="chatApp.replyToMessage('${message.id}')" title="답변">
+                <i class="fas fa-reply"></i>
+            </button>
+            <button class="action-icon" onclick="chatApp.addReaction('${message.id}', '👍')" title="좋아요">
+                <i class="fas fa-thumbs-up"></i>
+            </button>
+            <button class="action-icon" onclick="chatApp.addReaction('${message.id}', '❤️')" title="하트">
+                <i class="fas fa-heart"></i>
+            </button>
+        `;
+
+        // 이모지 반응 표시 (샘플)
+        if (Math.random() < 0.3) { // 30% 확률로 반응 표시
+            const reactionsDiv = document.createElement('div');
+            reactionsDiv.className = 'message-reactions';
+            const reactions = ['👍 2', '❤️ 1', '😊 1'];
+            const randomReaction = reactions[Math.floor(Math.random() * reactions.length)];
+            reactionsDiv.innerHTML = `<span class="reaction">${randomReaction}</span>`;
+            contentDiv.appendChild(reactionsDiv);
+        }
+
         messageDiv.appendChild(avatar);
         messageDiv.appendChild(contentDiv);
+        messageDiv.appendChild(actionsDiv);
 
         return messageDiv;
     }
@@ -372,6 +438,187 @@ class ChatApp {
     closeModal() {
         document.getElementById('modal-overlay').style.display = 'none';
     }
+
+    // 텍스트 영역 자동 리사이즈
+    autoResizeTextarea(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+    }
+
+    // 드래그 앤 드롭 설정
+    setupDragAndDrop() {
+        const chatMessages = document.getElementById('chat-messages');
+        const dragOverlay = document.getElementById('drag-drop-overlay');
+        let dragCounter = 0;
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            chatMessages.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+        });
+
+        chatMessages.addEventListener('dragenter', (e) => {
+            dragCounter++;
+            dragOverlay.style.display = 'flex';
+        });
+
+        chatMessages.addEventListener('dragleave', (e) => {
+            dragCounter--;
+            if (dragCounter === 0) {
+                dragOverlay.style.display = 'none';
+            }
+        });
+
+        chatMessages.addEventListener('drop', (e) => {
+            dragCounter = 0;
+            dragOverlay.style.display = 'none';
+            
+            const files = [...e.dataTransfer.files];
+            if (files.length > 0) {
+                this.handleFileUpload(files);
+            }
+        });
+    }
+
+    // 파일 업로드 처리
+    handleFileUpload(files) {
+        files.forEach(file => {
+            const fileMessage = {
+                id: Date.now() + Math.random(),
+                sender: this.currentUser,
+                text: `📎 ${file.name} (${this.formatFileSize(file.size)})`,
+                time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
+                avatar: 'face2.png',
+                isOwn: true,
+                isFile: true,
+                fileType: file.type,
+                fileName: file.name
+            };
+
+            if (this.currentChannel === 'general') {
+                this.messages.general.push(fileMessage);
+            } else {
+                if (!this.privateMessages[this.currentChannel]) {
+                    this.privateMessages[this.currentChannel] = [];
+                }
+                this.privateMessages[this.currentChannel].push(fileMessage);
+            }
+
+            this.displayMessages();
+            this.scrollToBottom();
+            
+            // 파일 보관함에 추가
+            this.addToFileStorage(file);
+        });
+    }
+
+    // 복사-붙여넣기 처리
+    handlePaste(e) {
+        const items = [...e.clipboardData.items];
+        
+        items.forEach(item => {
+            if (item.type.indexOf('image') !== -1) {
+                const blob = item.getAsFile();
+                if (blob) {
+                    const imageMessage = {
+                        id: Date.now() + Math.random(),
+                        sender: this.currentUser,
+                        text: `🖼️ 이미지가 붙여넣어졌습니다`,
+                        time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
+                        avatar: 'face2.png',
+                        isOwn: true,
+                        isImage: true,
+                        imageUrl: URL.createObjectURL(blob)
+                    };
+
+                    if (this.currentChannel === 'general') {
+                        this.messages.general.push(imageMessage);
+                    } else {
+                        if (!this.privateMessages[this.currentChannel]) {
+                            this.privateMessages[this.currentChannel] = [];
+                        }
+                        this.privateMessages[this.currentChannel].push(imageMessage);
+                    }
+
+                    this.displayMessages();
+                    this.scrollToBottom();
+                }
+            }
+        });
+    }
+
+    // 파일 크기 포맷팅
+    formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // 파일 보관함에 추가
+    addToFileStorage(file) {
+        const fileList = document.querySelector('.file-list');
+        const fileItem = document.createElement('div');
+        fileItem.className = 'file-item';
+        
+        let iconClass = 'fas fa-file';
+        if (file.type.includes('excel') || file.name.endsWith('.xlsx')) {
+            iconClass = 'fas fa-file-excel';
+        } else if (file.type.includes('pdf')) {
+            iconClass = 'fas fa-file-pdf';
+        } else if (file.type.includes('word')) {
+            iconClass = 'fas fa-file-word';
+        } else if (file.type.includes('image')) {
+            iconClass = 'fas fa-file-image';
+        }
+
+        fileItem.innerHTML = `
+            <i class="${iconClass}"></i>
+            <span>${file.name}</span>
+            <button class="download-btn" title="다운로드">
+                <i class="fas fa-download"></i>
+            </button>
+        `;
+
+        fileList.appendChild(fileItem);
+    }
+
+    // 답변 기능
+    replyToMessage(messageId) {
+        const replyIndicator = document.createElement('div');
+        replyIndicator.className = 'reply-indicator';
+        replyIndicator.textContent = '💬 메시지에 답변 중...';
+        
+        const inputContainer = document.querySelector('.message-input-container');
+        inputContainer.insertBefore(replyIndicator, inputContainer.firstChild);
+        
+        document.getElementById('message-input').focus();
+        
+        // 답변 취소 버튼 추가
+        const cancelBtn = document.createElement('button');
+        cancelBtn.innerHTML = '✕';
+        cancelBtn.style.cssText = `
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #4a90e2;
+        `;
+        cancelBtn.onclick = () => replyIndicator.remove();
+        replyIndicator.style.position = 'relative';
+        replyIndicator.appendChild(cancelBtn);
+    }
+
+    // 이모지 반응 추가
+    addReaction(messageId, emoji) {
+        // 실제 구현에서는 서버에 저장
+        console.log(`메시지 ${messageId}에 ${emoji} 반응 추가`);
+    }
 }
 
 // 전역 함수들
@@ -390,12 +637,64 @@ function showEmojiPicker() {
 
 // 파일 첨부 시뮬레이션
 function attachFile() {
-    alert('파일 첨부 기능은 서버 구현 후 사용 가능합니다.');
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.multiple = true;
+    input.accept = '*/*';
+    input.onchange = (e) => {
+        const files = [...e.target.files];
+        if (files.length > 0) {
+            chatApp.handleFileUpload(files);
+        }
+    };
+    input.click();
 }
+
+// 파일 다운로드
+function downloadFile(fileName) {
+    alert(`${fileName} 다운로드 시작 (실제 구현 시 서버에서 파일 제공)`);
+}
+
+// 이미지 모달 열기
+function openImageModal(imageUrl) {
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+        cursor: pointer;
+    `;
+    
+    const img = document.createElement('img');
+    img.src = imageUrl;
+    img.style.cssText = `
+        max-width: 90%;
+        max-height: 90%;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    `;
+    
+    modal.appendChild(img);
+    document.body.appendChild(modal);
+    
+    modal.onclick = () => {
+        document.body.removeChild(modal);
+    };
+}
+
+// 전역 변수
+let chatApp;
 
 // 애플리케이션 초기화
 document.addEventListener('DOMContentLoaded', () => {
-    const chatApp = new ChatApp();
+    chatApp = new ChatApp();
 
     // 이모지 버튼 이벤트
     document.querySelector('.emoji-btn').addEventListener('click', showEmojiPicker);

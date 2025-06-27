@@ -271,28 +271,38 @@ body {
 }
 
 .message-text {
-    background: #f1f2f4;
-    padding: 10px 14px;
-    border-radius: 12px;
+    background: linear-gradient(135deg, #e8f4f8 0%, #f0f8ff 100%);
+    padding: 12px 16px;
+    border-radius: 18px 18px 18px 4px;
     font-size: 14px;
-    line-height: 1.4;
+    line-height: 1.5;
     color: #000000;
     word-wrap: break-word;
+    display: inline-block;
+    max-width: fit-content;
+    min-width: 60px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(74, 144, 226, 0.2);
 }
 
 .message.own .message-text {
-    background: #4a90e2;
+    background: linear-gradient(135deg, #4a90e2 0%, #667eea 100%);
     color: #ffffff;
+    border-radius: 18px 18px 4px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .message.private .message-text {
-    background: #e8f5e8;
+    background: linear-gradient(135deg, #e8f5e8 0%, #f0fff4 100%);
     border-left: 4px solid #2eb67d;
+    box-shadow: 0 2px 8px rgba(46, 182, 125, 0.2);
 }
 
 .message.own.private .message-text {
-    background: #2eb67d;
+    background: linear-gradient(135deg, #2eb67d 0%, #20b56d 100%);
     color: #ffffff;
+    border-left: none;
+    border-right: 4px solid rgba(255, 255, 255, 0.5);
 }
 
 /* 메시지 입력 영역 */
@@ -346,6 +356,10 @@ body {
     color: #000000;
     outline: none;
     font-family: inherit;
+    resize: none;
+    min-height: 20px;
+    max-height: 120px;
+    overflow-y: auto;
 }
 
 #message-input::placeholder {
@@ -566,6 +580,209 @@ body {
     #message-input {
         color: #ffffff;
     }
+}
+
+/* 드래그 앤 드롭 오버레이 */
+.drag-drop-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(74, 144, 226, 0.9);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.drag-drop-content {
+    text-align: center;
+    color: #ffffff;
+}
+
+.drag-drop-content i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    display: block;
+}
+
+.drag-drop-content h3 {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.drag-drop-content p {
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+/* 휴가 상태 표시 */
+.leave-status {
+    background: #ff9800;
+    color: #ffffff;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: auto;
+    font-weight: 600;
+}
+
+/* 파일 보관함 */
+.file-storage, .schedule-alerts {
+    padding: 0 15px;
+    margin-bottom: 20px;
+}
+
+.file-item, .alert-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin: 2px 0;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.file-item:hover, .alert-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.file-item i {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+
+.file-item .fas.fa-file-excel {
+    color: #1d6f42;
+}
+
+.file-item .fas.fa-file-pdf {
+    color: #e53e3e;
+}
+
+.file-item span {
+    flex: 1;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.download-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.download-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+/* 일정 알림 */
+.alert-item i {
+    font-size: 14px;
+    width: 20px;
+    text-align: center;
+    color: #ffd700;
+}
+
+.alert-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.alert-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.alert-time {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* 답변 기능 */
+.message-actions {
+    display: none;
+    position: absolute;
+    top: -30px;
+    right: 10px;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+}
+
+.message:hover .message-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.action-icon {
+    background: none;
+    border: none;
+    padding: 6px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #868686;
+    transition: all 0.2s ease;
+}
+
+.action-icon:hover {
+    background: #f1f2f4;
+    color: #4a90e2;
+}
+
+.reply-indicator {
+    border-left: 3px solid #4a90e2;
+    background: rgba(74, 144, 226, 0.1);
+    padding: 8px 12px;
+    margin: 4px 0;
+    border-radius: 0 8px 8px 0;
+    font-size: 12px;
+    color: #4a90e2;
+}
+
+/* 이모지 반응 */
+.message-reactions {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.reaction {
+    background: rgba(74, 144, 226, 0.1);
+    border: 1px solid rgba(74, 144, 226, 0.3);
+    border-radius: 12px;
+    padding: 2px 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.reaction:hover {
+    background: rgba(74, 144, 226, 0.2);
+}
+
+.reaction.active {
+    background: #4a90e2;
+    color: #ffffff;
 }
 
 /* 추가 유틸리티 클래스 */
